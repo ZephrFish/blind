@@ -1,4 +1,5 @@
 # Blind BOF
+![image](https://github.com/user-attachments/assets/59f6e13f-a716-4b7d-9a75-f57c52794efa)
 
 This project provides a Beacon Object File (BOF) that implements stealth patching for AMSI, ETW, and Sysmon (NtTraceEvent) using trampoline hooks. It is designed for use in Cobalt Strike to evade detection and suppress telemetry during red team operations.
 
