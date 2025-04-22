@@ -39,6 +39,7 @@ blind sysmon    # Patch NtTraceEvent only
 blind check     # Check current hook/patch status
 ```
 
+
 Files
 - bofblind.c - Core BOF source code
 - bofblind.x64.o - Compiled x64 BOF object
